@@ -1,4 +1,7 @@
 #include <iostream>
+#include <sstream>
+#include <cstring>
+#include <string>
 #include <GL/glut.h>
 #include <GL/freeglut.h>
 #include <sys/ioctl.h>
@@ -6,14 +9,14 @@
 #include <unistd.h>
 #include "headers/rgbo.hpp"
 
-const unsigned char* buffer;
+std::string buffer;
 
 static void key(unsigned char key, int x, int y) {
-	buffer.push_back((char) key);
+	buffer.push_back((char) key); 
 	glutPostRedisplay;
 }
 
-void renderUserInput(float x, float y, void *font, const unsigned char* string, const RGBO& rgbo) {
+void renderUserInput(float x, float y, void *font, const unsigned char* string, RGBO rgbo) {
 	char *c;
 	glColor4f(rgbo.r, rgbo.g, rgbo.b, rgbo.opacity);
 	glRasterPos2f(x, y);
@@ -22,8 +25,8 @@ void renderUserInput(float x, float y, void *font, const unsigned char* string, 
 }
 
 void display(void) {
-	const unsigned char* userInput = reinterpret_cast<const unsigned char*>(buffer);
-	renderUserInput(0.0f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, userInput, {1.0f, 1.0f, 1.0f, 1.0f}); 
+//	const unsigned char* userInput = reinterpret_cast<const unsigned char*>(buffer);
+	renderUserInput(0.0f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*) buffer.c_str(), {1.0f, 1.0f, 1.0f, 1.0f}); 
 }
 
 int main(int argc, char** argv) {
