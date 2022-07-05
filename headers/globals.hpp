@@ -5,8 +5,8 @@
 #include <vector>
 
 extern std::string buffer;
-extern std::string bufferCopy;
-extern int size;
-extern std::string * pUserCommand;
+extern int stringSize;
+extern std::string *pCommand;
+extern int pPos;
 
 #endif

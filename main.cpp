@@ -13,14 +13,39 @@
 using namespace std;
 
 std::string buffer;
-std::string bufferCopy;
-static int lineCount = 0;
+static int lineNum = 0;
+int stringSize = 0;
+std::string *pCommand = new (nothrow) std::string[stringSize];
+int pPos = 0;
 
 static void keyboard(unsigned char key, int x, int y) {
-	bufferCopy = buffer;
 	if ((int) key == 13) {
-		buffer.push_back('\n');
-		lineCount = lineCount + 1;
+		if (buffer[buffer.size() - 1] == '\n') {
+			buffer.append("err: you must enter a valid command\n");
+		} else { 
+			std::size_t pos = buffer.rfind('\n');
+			if (pos != std::string::npos) {
+
+				switch (buffer.substr(pPos + 1)) {
+					case "clear":
+						delete[] pCommand;
+						buffer = "";
+						break;
+					default:
+						stringSize = buffer.substr(pPos + 1).length();
+						pCommand[pPos] = buffer.substr(pPos + 1);
+						pPos = pPos + 1;
+				}
+			}
+			buffer.push_back('\n');
+		}
+		lineNum = lineNum + 1;
+		if (lineNum >= 5) {
+			std::size_t pos = buffer.find('\n');
+			if (pos != std::string::npos) {
+				buffer = buffer.substr(pos+1);
+			}
+		}
 	} else if ((int) key == 8) {
 		buffer.pop_back();
 	} else if ((int) key == 27) {
@@ -53,11 +78,7 @@ void display(void) {
 	// offset from edge of the window on y-axis to account for title bar height
 	float offset = 0.065f;
 
-	if (lineCount >= 4) {
-
-	}
-
-	displayUserInput(-1.0f, 1.0f - offset, GLUT_BITMAP_8_BY_13, (const unsigned char*) bufferCopy.c_str(), {1.0f, 1.0f, 1.0f, 1.0f});
+	displayUserInput(-1.0f, 1.0f - offset, GLUT_BITMAP_8_BY_13, (const unsigned char*) buffer.c_str(), {1.0f, 1.0f, 1.0f, 1.0f});
 
 	glutSwapBuffers();
 }
