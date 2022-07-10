@@ -14,28 +14,43 @@ using namespace std;
 
 std::string buffer;
 static int lineNum = 0;
-int stringSize = 0;
-std::string *pCommand = new (nothrow) std::string[stringSize];
+int pSize = 1;
+char** pCommand = (char**)malloc(pSize * sizeof(char*));
 int pPos = 0;
+
+enum codes {
+	clear,
+};
+
+codes hashIt(std::string const& command) {
+	codes s; 
+	if (command == "clear") s = clear;
+	return s;
+}
 
 static void keyboard(unsigned char key, int x, int y) {
 	if ((int) key == 13) {
 		if (buffer[buffer.size() - 1] == '\n') {
 			buffer.append("err: you must enter a valid command\n");
-		} else { 
-			std::size_t pos = buffer.rfind('\n');
-			if (pos != std::string::npos) {
-
-				switch (buffer.substr(pPos + 1)) {
-					case "clear":
-						delete[] pCommand;
-						buffer = "";
-						break;
-					default:
-						stringSize = buffer.substr(pPos + 1).length();
-						pCommand[pPos] = buffer.substr(pPos + 1);
-						pPos = pPos + 1;
-				}
+		} else {
+			// find last position of \n before inserting new \n 
+			std::size_t pos = buffer.rfind("\n");
+			if (pos == std::string::npos)
+				pos = -1;
+			switch (hashIt(buffer.substr(pos + 1))) {
+				case clear:
+					free(pCommand);
+					pCommand = NULL;	
+					pPos = 0;
+					pSize = 1;	
+					buffer = "";
+					lineNum = 0;
+					break;
+				default:
+					*(pCommand+pPos) = (char*)malloc(buffer.substr(pos+1).length() * sizeof(char));
+					pPos = pPos + 1;
+					pSize = pSize + 1;
+					pCommand = (char**)realloc(pCommand, pSize * sizeof(char*));
 			}
 			buffer.push_back('\n');
 		}

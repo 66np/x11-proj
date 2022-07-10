@@ -5,8 +5,8 @@
 #include <vector>
 
 extern std::string buffer;
-extern int stringSize;
-extern std::string *pCommand;
+extern int pSize;
+extern char** pCommand;
 extern int pPos;
 
 #endif
