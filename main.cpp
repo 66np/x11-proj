@@ -13,7 +13,7 @@
 using namespace std;
 
 std::string buffer;
-static int lineNum = 0;
+int lineNum = 0;
 int pSize = 1;
 char** pCommand = (char**)malloc(pSize * sizeof(char*));
 int pPos = 0;
@@ -39,23 +39,23 @@ static void keyboard(unsigned char key, int x, int y) {
 				pos = -1;
 			switch (hashIt(buffer.substr(pos + 1))) {
 				case clear:
-					free(pCommand);
-					pCommand = NULL;	
 					pPos = 0;
 					pSize = 1;	
+					pCommand = (char**)realloc(pCommand, pSize * sizeof(char*));	
 					buffer = "";
-					lineNum = 0;
+					// accounts for 'clear' command to take up a line
+					lineNum = -1;
 					break;
 				default:
 					*(pCommand+pPos) = (char*)malloc(buffer.substr(pos+1).length() * sizeof(char));
 					pPos = pPos + 1;
 					pSize = pSize + 1;
 					pCommand = (char**)realloc(pCommand, pSize * sizeof(char*));
+					buffer.push_back('\n');
 			}
-			buffer.push_back('\n');
 		}
 		lineNum = lineNum + 1;
-		if (lineNum >= 5) {
+		if (lineNum > 5) {
 			std::size_t pos = buffer.find('\n');
 			if (pos != std::string::npos) {
 				buffer = buffer.substr(pos+1);
@@ -64,6 +64,8 @@ static void keyboard(unsigned char key, int x, int y) {
 	} else if ((int) key == 8) {
 		buffer.pop_back();
 	} else if ((int) key == 27) {
+		free(pCommand);
+		pCommand = NULL;	
 		exit(3);
 	} else {
 		buffer.push_back((char) key); 
