@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <X11/Xlib.h>
 #include "headers/rgbo.hpp"
 #include "headers/globals.hpp"
 using namespace std;
@@ -17,6 +18,18 @@ int lineNum = 0;
 int pSize = 1;
 char** pCommand = (char**)malloc(pSize * sizeof(char*));
 int pPos = 0;
+
+Display* xDisplay = XOpenDisplay(NULL);
+Screen* xScreen = DefaultScreenOfDisplay(xDisplay);
+float clickXPos = 0.0f;
+float clickYPos = 0.0f;
+	
+void getMouseClickPos(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+		clickXPos = ((float) x - (float) xScreen->width / 2) / ((float) xScreen->width / 2);
+		clickYPos = -1 * ((float) y - (float) xScreen->height / 2) / ((float) xScreen->height / 2);
+	}
+}
 
 enum codes {
 	clear,
@@ -81,10 +94,20 @@ void displayUserInput(float x, float y, void *font, const unsigned char* string,
 	glutBitmapString(font, string);
 }
 
-void display(void) {
-	struct winsize windowObj;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &windowObj);
+void renderAxes(float x, float y, RGBO rgbo) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColor4f(rgbo.r, rgbo.g, rgbo.b, rgbo.opacity);
 
+	glBegin(GL_LINES);
+		glVertex2f(x, -1.0f);
+		glVertex2f(x, 1.0f);
+		glVertex2f(-1.0f, y);
+		glVertex2f(1.0f, y);
+	glEnd();
+}
+
+void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -96,7 +119,7 @@ void display(void) {
 	float offset = 0.065f;
 
 	displayUserInput(-1.0f, 1.0f - offset, GLUT_BITMAP_8_BY_13, (const unsigned char*) buffer.c_str(), {1.0f, 1.0f, 1.0f, 1.0f});
-
+	renderAxes(clickXPos, clickYPos, {1.0f, 0.0f, 0.0f, 1.0f});
 	glutSwapBuffers();
 }
 
@@ -109,6 +132,7 @@ int main(int argc, char** argv) {
 	glutInitWindowPosition(-1, 1);
 	glutCreateWindow("cad");
 	glutDisplayFunc(display);
+	glutMouseFunc(getMouseClickPos);
 	glutKeyboardFunc(keyboard);	
 	glutMainLoop();
 	return 0;

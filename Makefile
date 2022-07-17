@@ -7,7 +7,7 @@ CPP = main.cpp
 OBJ = main.o
 
 main: $(OBJ)
-	$(CC) $(OBJ) -o main -lglut -lGLU -lGL
+	$(CC) $(OBJ) -o main -lglut -lGLU -lGL -lX11
 
 main.o: $(CPP) $(HPP)
 	$(CC) -c $(CPP)
