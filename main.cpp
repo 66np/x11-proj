@@ -24,8 +24,8 @@ Screen* xScreen = DefaultScreenOfDisplay(xDisplay);
 float clickXPos = 0.0f;
 float clickYPos = 0.0f;
 	
-void getMouseClickPos(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+void mouse(int button, int state, int x, int y) {
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 		clickXPos = ((float) x - (float) xScreen->width / 2) / ((float) xScreen->width / 2);
 		clickYPos = -1 * ((float) y - (float) xScreen->height / 2) / ((float) xScreen->height / 2);
 	}
@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
 	glutInitWindowPosition(-1, 1);
 	glutCreateWindow("cad");
 	glutDisplayFunc(display);
-	glutMouseFunc(getMouseClickPos);
+	glutMouseFunc(mouse);
 	glutKeyboardFunc(keyboard);	
 	glutMainLoop();
 	return 0;
